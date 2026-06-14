@@ -306,8 +306,19 @@ ion-content::part(scroll)::-webkit-scrollbar-thumb:hover {
 }
 
 /* ── Custom Styling for Ionic Alerts (Delete Confirmations, etc.) ── */
+ion-alert {
+  --background: #F2EFE9 !important;
+}
+
+ion-alert::part(backdrop) {
+  background-color: rgba(26, 46, 35, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  opacity: 1 !important;
+}
+
 ion-alert::part(container) {
-  background: #F2EFE9 !important; /* solid warm bone background */
+  background: #F2EFE9 !important; /* solid warm bone background fallback */
   border-radius: 24px !important;
   border: 1px solid rgba(43, 135, 96, 0.25) !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15) !important;
