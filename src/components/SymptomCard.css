@@ -1,0 +1,95 @@
+/* ═══════════════════════════════════════════════════════════════
+ * SymptomCard.css — Timeline Entry Refactoring
+ * Jade Horizon continuous timeline feed.
+ * ═══════════════════════════════════════════════════════════════ */
+
+.symptom-card {
+  /* Strip individual cards styling to establish continuous timeline Canvas */
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0;
+  padding: 16px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px; /* space between severity node and content text */
+}
+
+.symptom-card__content {
+  flex: 1;
+}
+
+.symptom-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.symptom-card__header-text {
+  display: flex;
+  flex-direction: row; /* inline row */
+  align-items: baseline;
+  gap: 8px; /* space between timestamps */
+}
+
+.symptom-card__timestamp-relative {
+  font-size: 15px;
+  color: #1A2E23;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.symptom-card__timestamp-exact {
+  font-size: 12px;
+  color: #5CA87C;
+  font-weight: 500;
+}
+
+.symptom-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.symptom-card__tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 12px;
+  letter-spacing: 0.1px;
+}
+
+.symptom-card__tag-icon {
+  font-size: 16px;
+}
+
+.symptom-card__note {
+  font-size: 14px;
+  color: #4B6358;
+  font-style: italic;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.symptom-card__delete-btn {
+  --color: #94A3B8;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  margin: 0;
+  font-size: 18px;
+  min-height: 24px;
+}
+
+.symptom-card__delete-btn:hover,
+.symptom-card__delete-btn:active {
+  --color: #EB445A;
+}

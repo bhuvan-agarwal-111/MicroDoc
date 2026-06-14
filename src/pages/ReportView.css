@@ -1,0 +1,204 @@
+/* ═══════════════════════════════════════════════════════════════
+ * ReportView.css — Jade Horizon Glassmorphism Doctor Report
+ * Frosted glass panels, warm bone tones, premium actions.
+ * ═══════════════════════════════════════════════════════════════ */
+
+.report__content {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 120px;
+  --background: transparent;
+}
+
+.report__header-toolbar {
+  --background: transparent;
+  --border-width: 0;
+}
+
+.report__title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.3px;
+  color: #1A2E23;
+}
+
+/* ═══════════════════════════════════════════
+ * TIME RANGE SELECTOR — Frosted Glass Pill
+ * ═══════════════════════════════════════════ */
+.report__range-section {
+  margin-bottom: 20px;
+}
+
+.report__segment {
+  --background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 40px;
+  box-shadow: 0 8px 24px rgba(31, 38, 135, 0.04);
+  padding: 4px;
+}
+
+.report__segment ion-segment-button {
+  --indicator-color: rgba(255, 255, 255, 0.7);
+  --indicator-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --color: #5CA87C;
+  --color-checked: #1A5140;
+  --border-radius: 30px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.3px;
+  min-width: 0;
+  min-height: 40px;
+  --padding-start: 4px;
+  --padding-end: 4px;
+}
+
+/* ═══════════════════════════════════════════
+ * SUMMARY CARD — Frosted Glass Panel
+ * ═══════════════════════════════════════════ */
+.report__summary-card {
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(30px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.06);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.report__summary-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #5CA87C;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.report__summary-text {
+  font-size: 15px;
+  color: #1A2E23;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  font-weight: 400;
+}
+
+/* ═══════════════════════════════════════════
+ * ACTION BUTTONS — Premium Jade Actions
+ * ═══════════════════════════════════════════ */
+.report__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.report__action-btn {
+  --border-radius: 14px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  height: 56px;
+  min-height: 56px;
+  text-transform: none;
+  letter-spacing: 0;
+  width: 100%;
+}
+
+.report__action-btn--primary {
+  --background: linear-gradient(135deg, #2B8760, #1A5140);
+  --box-shadow: 0 8px 24px rgba(43, 135, 96, 0.3);
+  color: #FFF;
+}
+
+/* ═══════════════════════════════════════════
+ * DIVIDER
+ * ═══════════════════════════════════════════ */
+.report__divider {
+  height: 1px;
+  background: rgba(183, 229, 186, 0.3);
+  margin: 20px 0;
+}
+
+/* ═══════════════════════════════════════════
+ * DATA MANAGEMENT / BACKUP
+ * ═══════════════════════════════════════════ */
+.report__section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #5CA87C;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.report__backup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.report__data-btn {
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: 0;
+  height: auto;
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════
+ * DANGER ZONE — Frosted Destructive Panel
+ * ═══════════════════════════════════════════ */
+.report__danger-zone {
+  border: 1px solid rgba(252, 165, 165, 0.5);
+  border-radius: 16px;
+  padding: 20px;
+  background: rgba(254, 242, 242, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  margin: 24px 0;
+}
+
+.report__danger-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #EB445A;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.report__danger-desc {
+  font-size: 14px;
+  color: #4B6358;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.report__purge-btn {
+  --border-radius: 14px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: 0;
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════
+ * HIDDEN FILE INPUT
+ * ═══════════════════════════════════════════ */
+.report__file-input {
+  display: none;
+}

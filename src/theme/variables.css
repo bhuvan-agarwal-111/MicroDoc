@@ -1,0 +1,338 @@
+/* ═══════════════════════════════════════════════════════════════
+ * MicroDoc — Jade Horizon Glassmorphism Theme
+ * Warm bone/cream tones · Frosted glass surfaces · Premium typography
+ * ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Typography ── */
+  --ion-font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Roboto", sans-serif;
+
+  /* ── Primary (Jade Green) ── */
+  --ion-color-primary: #2B8760;
+  --ion-color-primary-rgb: 43, 135, 96;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #247754;
+  --ion-color-primary-tint: #409870;
+
+  /* ── Secondary ── */
+  --ion-color-secondary: #5CA87C;
+  --ion-color-secondary-rgb: 92, 168, 124;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #51946D;
+  --ion-color-secondary-tint: #6CB189;
+
+  /* ── Tertiary ── */
+  --ion-color-tertiary: #B7E5BA;
+  --ion-color-tertiary-rgb: 183, 229, 186;
+  --ion-color-tertiary-contrast: #1A5140;
+  --ion-color-tertiary-contrast-rgb: 26, 81, 64;
+  --ion-color-tertiary-shade: #A1CAA4;
+  --ion-color-tertiary-tint: #BEE8C1;
+
+  /* ── Success (Severity Low) ── */
+  --ion-color-success: #2DD36F;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #000000;
+  --ion-color-success-contrast-rgb: 0, 0, 0;
+  --ion-color-success-shade: #28BA62;
+  --ion-color-success-tint: #42D77D;
+
+  /* ── Warning (Severity Mid) ── */
+  --ion-color-warning: #FFC409;
+  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #E0AC08;
+  --ion-color-warning-tint: #FFCA22;
+
+  /* ── Danger (Severity High / Destructive) ── */
+  --ion-color-danger: #EB445A;
+  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #CF3C4F;
+  --ion-color-danger-tint: #ED576B;
+
+  /* ── Light ── */
+  --ion-color-light: #F4F5F0;
+  --ion-color-light-rgb: 244, 245, 240;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #D7D8D4;
+  --ion-color-light-tint: #F5F6F2;
+
+  /* ── Medium ── */
+  --ion-color-medium: #92949C;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #000000;
+  --ion-color-medium-contrast-rgb: 0, 0, 0;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9D9FA6;
+
+  /* ── Dark ── */
+  --ion-color-dark: #1A2E23;
+  --ion-color-dark-rgb: 26, 46, 35;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #17281F;
+  --ion-color-dark-tint: #314339;
+
+  /* ── Global Surface (Warm Bone) ── */
+  --ion-background-color: transparent;
+  --ion-background-color-rgb: 242, 239, 233; /* #F2EFE9 in RGB */
+  --ion-text-color: #1A2E23;
+  --ion-text-color-rgb: 26, 46, 35;
+
+  --ion-border-color: rgba(255, 255, 255, 0.35);
+
+  /* ── Toolbar ── */
+  --ion-toolbar-background: transparent;
+  --ion-toolbar-color: #1A2E23;
+  --ion-toolbar-border-color: transparent;
+
+  /* ── Tab bar ── */
+  --ion-tab-bar-background: transparent;
+  --ion-tab-bar-color: #5CA87C;
+  --ion-tab-bar-color-selected: #1A5140;
+  --ion-tab-bar-border-color: transparent;
+
+  /* ── Item ── */
+  --ion-item-background: transparent;
+  --ion-item-border-color: transparent;
+
+  /* ── Card ── */
+  --ion-card-background: transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * GLOBAL BACKGROUND — Warm Jade Mesh Gradient
+ * Inspired by the Jade Horizon palette + medical app references.
+ * Uses warm cream/bone base with soft sage & mint washes.
+ * ═══════════════════════════════════════════════════════════════ */
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(183, 229, 186, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(92, 168, 124, 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 90%, rgba(183, 229, 186, 0.1) 0%, transparent 60%),
+    linear-gradient(180deg, #F6F5EF 0%, #F2EFE9 35%, #EBE8E0 70%, #E3E0D8 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+}
+
+ion-content {
+  --background: transparent !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * GLASS CONTAINER SURFACE — Core Utility Class
+ * Apply to Journal cards, Modal pop-up surfaces, panels.
+ * ═══════════════════════════════════════════════════════════════ */
+.glass-container-surface {
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(30px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.06) !important;
+  border-radius: 24px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * GLOBAL PREMIUM UTILITIES
+ * ═══════════════════════════════════════════════════════════════ */
+
+/* ── Premium Range Slider ── */
+ion-range {
+  --bar-height: 10px;
+  --bar-border-radius: 5px;
+  --bar-background: rgba(26, 81, 64, 0.1);
+  --bar-background-active: var(--ion-color-primary);
+  --knob-size: 28px;
+  --knob-background: #FFFFFF;
+  --knob-box-shadow: 0 3px 10px rgba(43, 135, 96, 0.25);
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* ── Premium Textarea ── */
+ion-textarea {
+  --background: rgba(255, 255, 255, 0.35);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 15px;
+  transition: border-color 0.2s ease;
+}
+
+ion-textarea:focus-within {
+  border-color: rgba(43, 135, 96, 0.5);
+}
+
+/* ── Large Action Button ── */
+.action-button-large {
+  --border-radius: 14px;
+  --padding-top: 18px;
+  --padding-bottom: 18px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  height: auto;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-bottom: 10px;
+}
+
+/* ── Premium Card Panel (Glass) ── */
+.premium-card-panel {
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(30px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(140%) !important;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.06) !important;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+/* ── Tab bar refinement (Floating Frosted Pill) ── */
+ion-tab-bar {
+  position: absolute;
+  bottom: 24px;
+  left: 5%;
+  width: 90%;
+  border-radius: 40px;
+  height: 64px;
+  --border: none;
+  --background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0 8px;
+  justify-content: space-around;
+  display: flex;
+}
+
+ion-tab-button {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  --background-focused: transparent;
+  --ripple-color: transparent;
+  border-radius: 30px;
+  max-width: 120px;
+  color: #5CA87C;
+}
+
+ion-tab-button[aria-selected="true"],
+ion-tab-button.tab-selected {
+  color: #1A5140;
+}
+
+/* ── Alert destructive button styling ── */
+.alert-button-danger {
+  color: #EB445A !important;
+  font-weight: 700 !important;
+}
+
+/* ── Toolbar title premium sizing ── */
+ion-title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.3px;
+  color: #1A2E23;
+}
+
+/* ── Header transparency for glass pass-through ── */
+ion-header {
+  background: transparent;
+}
+
+ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+}
+
+/* ── Premium Light Green Scrollbar Styling ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(92, 168, 124, 0.4) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(92, 168, 124, 0.4);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(43, 135, 96, 0.6);
+}
+
+/* Ionic shadow DOM scrollbar target */
+ion-content::part(scroll)::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+ion-content::part(scroll)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+ion-content::part(scroll)::-webkit-scrollbar-thumb {
+  background: rgba(92, 168, 124, 0.4) !important;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+ion-content::part(scroll)::-webkit-scrollbar-thumb:hover {
+  background: rgba(43, 135, 96, 0.6) !important;
+}
+
+/* ── Custom Styling for Ionic Alerts (Delete Confirmations, etc.) ── */
+ion-alert::part(container) {
+  background: #F2EFE9 !important; /* solid warm bone background */
+  border-radius: 24px !important;
+  border: 1px solid rgba(43, 135, 96, 0.25) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+ion-alert::part(title) {
+  color: #1A5140 !important;
+  font-weight: 700 !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+ion-alert::part(message) {
+  color: #4B6358 !important;
+  font-size: 15px !important;
+}
+
+ion-alert .alert-button {
+  color: #2B8760 !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+}
+
+ion-alert .alert-button-danger {
+  color: #EB445A !important;
+  font-weight: 800 !important;
+}
+
+

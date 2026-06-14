@@ -1,0 +1,178 @@
+/* ═══════════════════════════════════════════════════════════════
+ * Dashboard.css — Jade Horizon Glassmorphism Journal Feed
+ * Frosted glass surface, warm bone tones, premium FAB.
+ * ═══════════════════════════════════════════════════════════════ */
+
+.dashboard__content {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 120px;
+  --background: transparent;
+}
+
+.dashboard__header-toolbar {
+  --background: transparent;
+  --border-width: 0;
+}
+
+.dashboard__title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.3px;
+  color: #1A2E23;
+}
+
+/* ── Ephemeral Greeting ── */
+.dashboard__ephemeral-greeting {
+  position: relative;
+  width: calc(100% + 32px); /* bleed into the 16px padding on both sides */
+  margin-left: -16px;
+  margin-top: -12px; /* Pull it up to bleed into the header edge */
+  z-index: 10;
+  max-height: 250px;
+  opacity: 1;
+  transform: translateY(0);
+  transform-origin: top;
+  transition: all 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible; /* Need overflow visible for drop shadow on SVG */
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.06)); /* Drops shadow over the calendar */
+  color: #F2EFE9; /* The wave fill color will inherit this */
+}
+
+.dashboard__ephemeral-greeting--hidden {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  transform: translateY(-40px);
+}
+
+.dashboard__ephemeral-content {
+  background: linear-gradient(135deg, #F6F5EF 0%, #F2EFE9 100%);
+  padding: 32px 24px 16px;
+  text-align: center;
+}
+
+.dashboard__ephemeral-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1A2E23;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+
+.dashboard__ephemeral-date {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #3f604d;
+  letter-spacing: -0.01em;
+}
+
+.dashboard__ephemeral-wave {
+  display: block;
+  width: 100%;
+  height: 60px; /* How tall the wave is */
+  margin-top: -1px; /* Overlap slightly to prevent sub-pixel gaps */
+}
+
+.dashboard__feed {
+  padding-top: 8px;
+}
+
+/* ── Empty State ── */
+.dashboard__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 32px;
+  text-align: center;
+}
+
+.dashboard__empty-icon {
+  font-size: 56px;
+  color: #B7E5BA;
+  margin-bottom: 20px;
+}
+
+.dashboard__empty-text {
+  font-size: 16px;
+  color: #5CA87C;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.dashboard__empty-text strong {
+  color: #2B8760;
+}
+
+/* ── Continuous Timeline Canvas ── */
+.dashboard__timeline-container {
+  position: relative;
+  padding: 24px 20px 160px; /* generous bottom padding to clear the action button */
+  margin: 16px 0 24px;
+}
+
+/* Vertical Chronological Track */
+.dashboard__timeline-container::before {
+  content: '';
+  position: absolute;
+  top: 40px; /* starts centered with the first entry node */
+  bottom: 160px; /* ends nicely at the padding boundary */
+  left: 42px; /* centered relative to the 44px node wrapper + 20px padding */
+  width: 1px;
+  background: rgba(255, 255, 255, 0.25);
+  z-index: 1;
+}
+
+/* ── Centered Anchored Action Pill ── */
+.dashboard__action-container {
+  position: fixed;
+  bottom: 104px; /* anchors exactly 16px above the top of the tab bar (88px) */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  width: auto;
+}
+
+.dashboard__action-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1A5140 !important; /* confident solid dark surgical forest green */
+  color: #FFFFFF !important;
+  border: 1px solid #287a55 !important; /* hairline keyline slightly lighter than fill */
+  border-radius: 30px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  /* Crisp, physical, deep charcoal shadow with a tiny blur radius and minimal downward vertical offset */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard__action-pill:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dashboard__action-icon {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+
+/* ── Loading ── */
+.dashboard__loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+}

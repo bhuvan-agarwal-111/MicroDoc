@@ -1,0 +1,7 @@
+{
+  "name": "microdoc",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

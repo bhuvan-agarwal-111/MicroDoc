@@ -1,0 +1,609 @@
+/* ═══════════════════════════════════════════════════════════════
+ * IntakeModal.css — Jade Horizon Glassmorphism Intake
+ * Frosted glass modal surface, translucent symptom cards,
+ * warm bone tones, premium slider.
+ * ═══════════════════════════════════════════════════════════════ */
+
+.intake-modal {
+  --border-radius: 24px 24px 0 0;
+  --background: #F2EFE9; /* Warm bone background */
+}
+
+/* ── Modal wrapper content ── */
+.intake-modal::part(content) {
+  background: #EBEAE4 !important; /* Outer container background */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.intake-main-card {
+  background: #F6F5EF;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  padding: 24px 16px 16px;
+  position: relative;
+  z-index: 10;
+  margin-bottom: -16px; /* Pull the note slip up under this card */
+}
+
+/* ── Modal surfaces: transparent header ── */
+.intake-modal__toolbar {
+  --background: #F6F5EF !important;
+  --border-width: 0 !important;
+  border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+  box-shadow: none !important;
+  padding-top: var(--ion-safe-area-top, 16px) !important;
+}
+
+.intake-modal__toolbar ion-title {
+  color: #4A4C4A !important;
+  font-weight: 700;
+}
+
+.intake-modal__content {
+  --background: transparent !important;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 24px;
+}
+
+/* Make inner content scroll background transparent to reveal glass content wrapper */
+.intake-modal ion-content::part(background) {
+  background: transparent !important;
+}
+
+
+.intake-modal__section {
+  margin-bottom: 24px;
+}
+
+.intake-modal__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #87958B !important;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+  display: block;
+  z-index: 2;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════
+ * SYMPTOM GRID — Frosted Glass Icon Cards
+ * ═══════════════════════════════════════════ */
+.symptom-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 4px;
+}
+
+/* Unselected: solid light grey */
+.symptom-card-button {
+  border-radius: 12px;
+  border: 1px solid transparent;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #DFE0DC;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  z-index: 2;
+}
+
+/* ── Add Custom Jewel ── */
+.symptom-add-custom {
+  background: transparent;
+  border: 1.5px dashed #C4C6C2;
+}
+
+.symptom-add-custom__icon-wrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #DFE0DC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8A8D8B;
+  font-size: 20px;
+}
+
+.symptom-add-custom h3 {
+  color: #8A8D8B !important;
+}
+
+.symptom-card-button:active {
+  transform: scale(0.95);
+}
+
+.symptom-card-button h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 12px;
+  letter-spacing: -0.02em;
+}
+
+/* ── Active / Selected State — Glassy colored tint ── */
+.symptom-card-button--active {
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+.symptom-card-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  border: 2px solid rgba(255,255,255,0.8);
+}
+
+/* ═══════════════════════════════════════════
+ * SEVERITY — 3D Morphing Blob + Curved Arc Slider
+ * ═══════════════════════════════════════════ */
+.intake-modal__severity-container {
+  padding: 12px 16px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Blob Backdrop ── */
+.severity-blob-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.severity-blob-container {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.severity-blob {
+  width: 120px;
+  height: 120px;
+  border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%;
+  background: var(--blob-gradient);
+  box-shadow: 
+    0 0 60px var(--blob-glow),
+    0 0 120px var(--blob-glow),
+    inset 0 -20px 40px rgba(0, 0, 0, 0.15);
+  animation: blobMorph 3.5s ease-in-out infinite;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* 3D glass highlight overlay */
+.severity-blob::after {
+  content: '';
+  position: absolute;
+  top: 12%;
+  left: 18%;
+  width: 45%;
+  height: 35%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+@keyframes blobMorph {
+  0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); }
+  25%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: scale(1.05) rotate(5deg); }
+  50%  { border-radius: 70% 30% 50% 50% / 30% 50% 70% 50%; transform: scale(0.95) rotate(-5deg); }
+  75%  { border-radius: 40% 70% 40% 60% / 70% 40% 50% 30%; transform: scale(1.02) rotate(3deg); }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); }
+}
+
+/* ── Dynamic Status Text ── */
+.severity-status-text {
+  text-align: center;
+}
+
+.severity-status-text__feeling {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(26, 46, 35, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.severity-status-text__label {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1A2E23;
+  letter-spacing: -0.3px;
+  transition: color 0.3s ease;
+}
+
+.severity-status-text__score {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(26, 46, 35, 0.5);
+  margin-top: 2px;
+}
+
+/* ── Curved Arc Slider ── */
+.curved-slider {
+  width: 100%;
+  margin-top: 20px;
+  position: relative;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.curved-slider__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.curved-slider__track {
+  fill: none;
+  stroke: rgba(26, 46, 35, 0.1);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 4 8;
+}
+
+.curved-slider__track-active {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke 0.3s ease;
+}
+
+.curved-slider__handle {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  cursor: grab;
+  transition: r 0.15s ease;
+}
+
+.curved-slider__handle:active {
+  cursor: grabbing;
+}
+
+.curved-slider__handle-ring {
+  fill: none;
+  stroke: rgba(26, 46, 35, 0.15);
+  stroke-width: 2;
+}
+
+/* Dot markers on the arc */
+.curved-slider__dot {
+  transition: fill 0.3s ease, r 0.2s ease;
+}
+
+/* Labels below the slider */
+.curved-slider__labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px 0;
+}
+
+.curved-slider__labels span {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(26, 46, 35, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Ambient glow behind the blob */
+.severity-ambient-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  transform: translate(-50%, -60%);
+  border-radius: 50%;
+  background: var(--blob-glow);
+  opacity: 0.15;
+  filter: blur(60px);
+  pointer-events: none;
+  transition: background 0.6s ease;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════
+ * NOTES INPUT — Glass textarea
+ * ═══════════════════════════════════════════ */
+.intake-modal__textarea {
+  --background: rgba(255, 255, 255, 0.25);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  margin-top: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.intake-modal__textarea:focus-within {
+  border-color: rgba(43, 135, 96, 0.5);
+}
+
+/* ═══════════════════════════════════════════
+ * VALIDATION ERROR
+ * ═══════════════════════════════════════════ */
+.intake-modal__error {
+  font-size: 14px;
+  color: #EB445A;
+  font-weight: 600;
+  background: rgba(254, 242, 242, 0.7);
+  border: 1px solid rgba(254, 202, 202, 0.5);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 4px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ═══════════════════════════════════════════
+ * FOOTER — Frosted glass action bar
+ * ═══════════════════════════════════════════ */
+.intake-modal ion-footer {
+  background: transparent !important;
+  --background: transparent !important;
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+.intake-modal__footer {
+  display: flex;
+  gap: 16px;
+  padding: 16px 20px calc(16px + var(--ion-safe-area-bottom, 24px)) !important;
+  background: transparent !important;
+  border-top: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  align-items: center;
+}
+
+.intake-modal__cancel-btn {
+  flex: 0 0 auto;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+  margin: 0;
+  --color: #5CA87C;
+}
+
+.intake-modal__save-btn {
+  flex: 1;
+  --border-radius: 12px;
+  height: 56px;
+  margin: 0;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 16px;
+  --background: #2B8760;
+  --box-shadow: 0 8px 24px rgba(43, 135, 96, 0.3);
+}
+
+/* ═══════════════════════════════════════════
+ * FULL SCREEN MORPHING OVERLAY
+ * ═══════════════════════════════════════════ */
+.symptom-fullscreen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  pointer-events: none; /* enable clicks inside via inner divs */
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.symptom-fullscreen-overlay--visible {
+  opacity: 1;
+}
+
+.symptom-fullscreen-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  pointer-events: auto;
+  will-change: background, backdrop-filter;
+  transition: background 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              -webkit-backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.symptom-fullscreen-overlay--visible .symptom-fullscreen-backdrop {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.symptom-fullscreen-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(0px) saturate(100%);
+  -webkit-backdrop-filter: blur(0px) saturate(100%);
+  border: 1px solid rgba(255, 255, 255, 0);
+  border-radius: 32px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  flex: 0 0 auto;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  pointer-events: auto;
+  transform: translateY(20px) scale(0.98);
+  will-change: transform, background, backdrop-filter;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              background 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              -webkit-backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.symptom-fullscreen-overlay--visible .symptom-fullscreen-content {
+  transform: translateY(0) scale(1);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.symptom-fullscreen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.symptom-fullscreen-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #1A2E23;
+  letter-spacing: -0.5px;
+}
+
+.symptom-fullscreen-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.symptom-remove-btn {
+  flex: 0 0 auto;
+  --border-radius: 12px;
+  height: 56px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.symptom-save-btn {
+  flex: 1;
+  --border-radius: 20px;
+  height: 56px;
+  --background: #2D3032; /* Dark slate pill button */
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ── Ink & Parchment Note Slip ── */
+.note-slip-wrapper {
+  background: #F8F5EF; /* Light parchment paper */
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 -2px 10px rgba(0,0,0,0.02);
+  margin: 0 16px;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 32px 16px 16px; /* Extra padding top to tuck under */
+  border: 1px solid #E2E1DA;
+  border-top: none;
+  z-index: 5;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 98%, 98% 100%, 96% 99%, 94% 100%, 92% 99%, 90% 100%, 88% 99%, 86% 100%, 84% 99%, 82% 100%, 80% 99%, 78% 100%, 76% 99%, 74% 100%, 72% 99%, 70% 100%, 68% 99%, 66% 100%, 64% 99%, 62% 100%, 60% 99%, 58% 100%, 56% 99%, 54% 100%, 52% 99%, 50% 100%, 48% 99%, 46% 100%, 44% 99%, 42% 100%, 40% 99%, 38% 100%, 36% 99%, 34% 100%, 32% 99%, 30% 100%, 28% 99%, 26% 100%, 24% 99%, 22% 100%, 20% 99%, 18% 100%, 16% 99%, 14% 100%, 12% 99%, 10% 100%, 8% 99%, 6% 100%, 4% 99%, 2% 100%, 0% 98%);
+  /* Jagged bottom edge using polygon clip-path! */
+}
+
+.note-slip-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: -1;
+}
+
+.note-slip-wrapper:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.note-slip-textarea {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-style: italic;
+  color: #4A4A4A;
+  --placeholder-color: #8A8476;
+  --placeholder-opacity: 0.9;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── Integrated Aura Summary Canvas ── */
+.aura-canvas {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 250px;
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  filter: blur(50px);
+  opacity: 0.8;
+  overflow: hidden;
+}
+
+.aura-orb {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  transition: all 1s ease-in-out;
+}

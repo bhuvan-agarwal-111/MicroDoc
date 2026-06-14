@@ -1,0 +1,114 @@
+.calendar-widget {
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calendar-widget__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-widget__title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--ion-color-dark, #1A2E23);
+}
+
+.calendar-widget__nav-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: var(--ion-color-medium);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.calendar-widget__nav-btn:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.calendar-widget__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+
+.calendar-widget__day-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #94A3B8);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.calendar-widget__day {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.calendar-widget__day:active {
+  transform: scale(0.95);
+}
+
+.calendar-widget__day-number {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ion-color-dark, #1A2E23);
+  margin-bottom: 4px;
+}
+
+.calendar-widget__dots {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 4px;
+}
+
+.calendar-widget__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* States */
+.calendar-widget__day--empty {
+  cursor: default;
+  pointer-events: none;
+}
+
+.calendar-widget__day--today .calendar-widget__day-number {
+  color: var(--ion-color-primary, #15803D);
+  font-weight: 700;
+}
+
+.calendar-widget__day--selected {
+  background: rgba(92, 168, 124, 0.15);
+  border-color: rgba(92, 168, 124, 0.4);
+}
+
+.calendar-widget__day--selected .calendar-widget__day-number {
+  color: var(--ion-color-primary, #15803D);
+  font-weight: 700;
+}
