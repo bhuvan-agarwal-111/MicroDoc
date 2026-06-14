@@ -84,6 +84,7 @@
   --ion-background-color-rgb: 242, 239, 233; /* #F2EFE9 in RGB */
   --ion-text-color: #1A2E23;
   --ion-text-color-rgb: 26, 46, 35;
+  --ion-overlay-background-color: #F2EFE9 !important;
 
   --ion-border-color: rgba(255, 255, 255, 0.35);
 
