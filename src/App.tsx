@@ -18,6 +18,8 @@ import {
 import { IonReactRouter } from '@ionic/react-router';
 import { listOutline, documentTextOutline } from 'ionicons/icons';
 
+import InstallPrompt from './components/InstallPrompt';
+
 import Dashboard from './pages/Dashboard';
 import ReportView from './pages/ReportView';
 
@@ -53,6 +55,7 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
+    <InstallPrompt />
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>

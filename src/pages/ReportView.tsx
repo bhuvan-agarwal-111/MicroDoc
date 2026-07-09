@@ -1,11 +1,9 @@
 /**
- * ReportView — Doctor Consultation Report
+ * ReportView — Professional Doctor Consultation Report
  *
- * Transforms raw data entries into a highly structured, plain-text
- * chronological summary designed to be quickly read by a physician
- * during a time-constrained appointment.
- *
- * Also provides backup/restore and purge functionality.
+ * Transforms raw symptom data into a structured, card-based medical summary
+ * with symptom breakdown, severity indicators, timeline, and patient notes.
+ * Designed to be shared with a healthcare provider.
  */
 
 import React, { useState, useRef, useMemo } from 'react';
@@ -30,6 +28,9 @@ import {
   cloudDownloadOutline,
   cloudUploadOutline,
   trashOutline,
+  documentTextOutline,
+  calendarOutline,
+  chatbubbleEllipsesOutline,
 } from 'ionicons/icons';
 import { Clipboard } from '@capacitor/clipboard';
 import { Share } from '@capacitor/share';
@@ -41,6 +42,18 @@ import {
 import { REPORT_RANGE_LABELS } from '../types';
 import type { ReportRange } from '../types';
 import './ReportView.css';
+
+/**
+ * Returns a CSS color for a severity value (1-5).
+ * Smooth green → amber → red gradient.
+ */
+function severityColor(sev: number): string {
+  if (sev <= 1.5) return '#2DD36F';
+  if (sev <= 2.5) return '#7BC67E';
+  if (sev <= 3.5) return '#FFC409';
+  if (sev <= 4.5) return '#F58840';
+  return '#EB445A';
+}
 
 const ReportView: React.FC = () => {
   const { entries, purgeAll, exportBackupJSON, importBackup } = useSymptoms();
@@ -67,12 +80,11 @@ const ReportView: React.FC = () => {
   const handleCopy = async () => {
     try {
       await Clipboard.write({ string: reportText });
-      setToastMessage('Summary copied to clipboard');
+      setToastMessage('Report copied to clipboard');
     } catch {
-      // Fallback for web
       try {
         await navigator.clipboard.writeText(reportText);
-        setToastMessage('Summary copied to clipboard');
+        setToastMessage('Report copied to clipboard');
       } catch {
         setToastMessage('Failed to copy to clipboard');
       }
@@ -87,7 +99,6 @@ const ReportView: React.FC = () => {
         text: reportText,
       });
     } catch {
-      // User cancelled or share unavailable
       setToastMessage('Sharing is not available on this device');
     }
   };
@@ -102,7 +113,6 @@ const ReportView: React.FC = () => {
         dialogTitle: 'Export MicroDoc Backup',
       });
     } catch {
-      // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(json);
         setToastMessage('Backup JSON copied to clipboard');
@@ -140,7 +150,6 @@ const ReportView: React.FC = () => {
       );
     }
 
-    // Reset the input so the same file can be re-selected
     e.target.value = '';
   };
 
@@ -159,6 +168,8 @@ const ReportView: React.FC = () => {
     setShowPurgeAlert2(false);
     setToastMessage('All records have been permanently deleted');
   };
+
+  const hasData = reportData.totalEntries > 0;
 
   return (
     <IonPage>
@@ -186,10 +197,129 @@ const ReportView: React.FC = () => {
           </IonSegment>
         </div>
 
-        {/* ── Summary Card ── */}
-        <div className="report__summary-card">
-          <span className="report__summary-label">Doctor Summary</span>
-          <div className="report__summary-text">{reportText}</div>
+        {!hasData ? (
+          /* ── Empty State ── */
+          <div className="report__empty-state">
+            <IonIcon icon={documentTextOutline} className="report__empty-icon" />
+            <h3 className="report__empty-title">No Data Available</h3>
+            <p className="report__empty-desc">
+              No symptoms were logged during this period. Start tracking from the Journal tab to generate your report.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* ── Report Header Card ── */}
+            <div className="report__card report__header-card">
+              <div className="report__card-label">Symptom Report</div>
+              <div className="report__header-period">{reportData.dateRangeFormatted}</div>
+              <div className="report__header-stats">
+                <div className="report__stat-item">
+                  <span className="report__stat-value">{reportData.totalEntries}</span>
+                  <span className="report__stat-label">Entries</span>
+                </div>
+                <div className="report__stat-divider" />
+                <div className="report__stat-item">
+                  <span className="report__stat-value">{reportData.symptomStats.length}</span>
+                  <span className="report__stat-label">Symptoms</span>
+                </div>
+                <div className="report__stat-divider" />
+                <div className="report__stat-item">
+                  <span className="report__stat-value" style={{ color: severityColor(reportData.averageSeverity) }}>
+                    {reportData.averageSeverity}
+                  </span>
+                  <span className="report__stat-label">Avg Severity</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Symptom Breakdown Card ── */}
+            <div className="report__card">
+              <div className="report__card-label">Symptom Breakdown</div>
+              <div className="report__symptom-list">
+                {reportData.symptomStats.map((stat) => (
+                  <div key={stat.name} className="report__symptom-row">
+                    <div className="report__symptom-info">
+                      <span className="report__symptom-name">{stat.name}</span>
+                      <span className="report__symptom-freq">{stat.frequency}×</span>
+                    </div>
+                    <div className="report__severity-bar-track">
+                      <div
+                        className="report__severity-bar-fill"
+                        style={{
+                          width: `${(stat.avgSeverity / 5) * 100}%`,
+                          background: severityColor(stat.avgSeverity),
+                        }}
+                      />
+                    </div>
+                    <div className="report__symptom-meta">
+                      <span>avg {stat.avgSeverity}/5</span>
+                      <span>peak {stat.maxSeverity}/5</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Timeline Card ── */}
+            <div className="report__card">
+              <div className="report__card-label">
+                <IonIcon icon={calendarOutline} className="report__card-label-icon" />
+                Timeline
+              </div>
+              <div className="report__timeline">
+                {reportData.timeline.map((day) => (
+                  <div key={day.dateISO} className="report__timeline-day">
+                    <div className="report__timeline-date">{day.date}</div>
+                    {day.entries.map((entry, i) => (
+                      <div key={i} className="report__timeline-entry">
+                        <span className="report__timeline-time">{entry.time}</span>
+                        <div className="report__timeline-symptoms">
+                          {Object.entries(entry.symptoms).map(([name, sev]) => (
+                            <span
+                              key={name}
+                              className="report__timeline-pill"
+                              style={{ borderColor: severityColor(sev) }}
+                            >
+                              {name}
+                              <span
+                                className="report__timeline-sev"
+                                style={{ color: severityColor(sev) }}
+                              >
+                                {sev}
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Patient Notes Card (only if notes exist) ── */}
+            {reportData.patientNotes.length > 0 && (
+              <div className="report__card">
+                <div className="report__card-label">
+                  <IonIcon icon={chatbubbleEllipsesOutline} className="report__card-label-icon" />
+                  Patient Notes
+                </div>
+                <div className="report__notes-list">
+                  {reportData.patientNotes.map((n, i) => (
+                    <div key={i} className="report__note-item">
+                      <span className="report__note-date">{n.date}</span>
+                      <p className="report__note-text">"{n.note}"</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── Disclaimer ── */}
+        <div className="report__disclaimer">
+          This report is auto-generated from self-reported data and is not a medical diagnosis. Always consult a qualified healthcare professional for medical advice.
         </div>
 
         {/* ── Action Buttons ── */}

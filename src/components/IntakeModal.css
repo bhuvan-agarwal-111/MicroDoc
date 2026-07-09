@@ -153,7 +153,7 @@
 }
 
 /* ═══════════════════════════════════════════
- * SEVERITY — 3D Morphing Blob + Curved Arc Slider
+ * SEVERITY — Mindfulness Halo + Curved Arc Slider
  * ═══════════════════════════════════════════ */
 .intake-modal__severity-container {
   padding: 12px 16px 0;
@@ -161,8 +161,8 @@
   overflow: hidden;
 }
 
-/* ── Blob Backdrop ── */
-.severity-blob-wrapper {
+/* ── Halo Wrapper ── */
+.severity-halo-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -171,55 +171,88 @@
   z-index: 1;
 }
 
-.severity-blob-container {
-  width: 140px;
-  height: 140px;
+/* ── SVG Halo Container ── */
+.severity-halo-container {
+  width: 220px;
+  height: 220px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.severity-blob {
-  width: 120px;
-  height: 120px;
-  border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%;
-  background: var(--blob-gradient);
-  box-shadow: 
-    0 0 60px var(--blob-glow),
-    0 0 120px var(--blob-glow),
-    inset 0 -20px 40px rgba(0, 0, 0, 0.15);
-  animation: blobMorph 3.5s ease-in-out infinite;
-  transition: background 0.6s ease, box-shadow 0.6s ease;
-  position: relative;
-  z-index: 1;
+.severity-halo-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
-/* 3D glass highlight overlay */
-.severity-blob::after {
-  content: '';
+.halo-layer {
+  transform-origin: 100px 100px;
+  will-change: transform;
+}
+
+.halo-layer--1 {
+  animation: rotateCW 14s linear infinite, breatheLayer1 7s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.halo-layer--2 {
+  animation: rotateCCW 11s linear infinite, breatheLayer2 9s ease-in-out infinite;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+.halo-layer--3 {
+  animation: rotateCW 17s linear infinite, breatheLayer3 11s ease-in-out infinite;
+  mix-blend-mode: multiply;
+  opacity: 0.65;
+}
+
+/* GPU-accelerated multi-axial rotations */
+@keyframes rotateCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotateCCW {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes breatheLayer1 {
+  0%, 100% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.04) translate(-2px, 2px); }
+}
+
+@keyframes breatheLayer2 {
+  0%, 100% { transform: scale(0.98) translate(0, 0); }
+  50% { transform: scale(1.02) translate(2px, -1px); }
+}
+
+@keyframes breatheLayer3 {
+  0%, 100% { transform: scale(1.02) translate(0, 0); }
+  50% { transform: scale(0.97) translate(-1px, -2px); }
+}
+
+/* Ambient glow behind the halo — uses radial-gradient, NO filter blur */
+.severity-ambient-glow {
   position: absolute;
-  top: 12%;
-  left: 18%;
-  width: 45%;
-  height: 35%;
+  top: 50%;
+  left: 50%;
+  width: 240px;
+  height: 240px;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
   background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.35) 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 100%
+    circle at center,
+    var(--halo-glow, rgba(74, 222, 128, 0.25)) 0%,
+    transparent 70%
   );
-  transform: rotate(-15deg);
+  opacity: 0.6;
   pointer-events: none;
-}
-
-@keyframes blobMorph {
-  0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); }
-  25%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: scale(1.05) rotate(5deg); }
-  50%  { border-radius: 70% 30% 50% 50% / 30% 50% 70% 50%; transform: scale(0.95) rotate(-5deg); }
-  75%  { border-radius: 40% 70% 40% 60% / 70% 40% 50% 30%; transform: scale(1.02) rotate(3deg); }
-  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); }
+  transition: background 0.4s ease;
+  z-index: 0;
 }
 
 /* ── Dynamic Status Text ── */
@@ -322,21 +355,15 @@
   letter-spacing: 0.5px;
 }
 
-/* Ambient glow behind the blob */
-.severity-ambient-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 200px;
-  height: 200px;
-  transform: translate(-50%, -60%);
-  border-radius: 50%;
-  background: var(--blob-glow);
-  opacity: 0.15;
-  filter: blur(60px);
-  pointer-events: none;
-  transition: background 0.6s ease;
-  z-index: 0;
+/* ═══════════════════════════════════════════
+ * BOTTOM SHEET — Native Ionic Modal
+ * ═══════════════════════════════════════════ */
+
+/* Override the Ionic modal's inner scroll container */
+.severity-bottom-sheet::part(content) {
+  background: #F6F5EF;
+  border-radius: 28px 28px 0 0;
+  overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════
@@ -420,121 +447,92 @@
 }
 
 /* ═══════════════════════════════════════════
- * FULL SCREEN MORPHING OVERLAY
+ * SEVERITY BOTTOM SHEET LAYOUT
  * ═══════════════════════════════════════════ */
-.symptom-fullscreen-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
+
+.severity-sheet-content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
-  pointer-events: none; /* enable clicks inside via inner divs */
-  opacity: 0;
-  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.symptom-fullscreen-overlay--visible {
-  opacity: 1;
-}
-
-.symptom-fullscreen-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  pointer-events: auto;
-  will-change: background, backdrop-filter;
-  transition: background 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              -webkit-backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.symptom-fullscreen-overlay--visible .symptom-fullscreen-backdrop {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.symptom-fullscreen-content {
+  background: #F6F5EF;
+  padding: 0;
   position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  background: rgba(255, 255, 255, 0);
-  backdrop-filter: blur(0px) saturate(100%);
-  -webkit-backdrop-filter: blur(0px) saturate(100%);
-  border: 1px solid rgba(255, 255, 255, 0);
-  border-radius: 32px;
-  padding: 24px;
-  width: 100%;
-  max-width: 400px;
-  flex: 0 0 auto;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  pointer-events: auto;
-  transform: translateY(20px) scale(0.98);
-  will-change: transform, background, backdrop-filter;
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              background 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              -webkit-backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.symptom-fullscreen-overlay--visible .symptom-fullscreen-content {
-  transform: translateY(0) scale(1);
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border-color: rgba(255, 255, 255, 0.8);
+/* Drag handle pill at the top */
+.severity-sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(26, 46, 35, 0.15);
+  margin: 12px auto 0;
+  flex-shrink: 0;
 }
 
-.symptom-fullscreen-header {
+/* ── Header row ── */
+.severity-sheet-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  padding: 12px 8px 0 20px;
+  flex-shrink: 0;
 }
 
-.symptom-fullscreen-title {
+.severity-sheet-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 28px;
+  gap: 10px;
+  font-size: 22px;
   font-weight: 800;
   color: #1A2E23;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
 }
 
-.symptom-fullscreen-actions {
-  margin-top: auto;
+.severity-sheet-close {
+  --color: rgba(26, 46, 35, 0.5);
+}
+
+/* ── Halo area: tightly packed ── */
+.severity-sheet-halo-area {
   display: flex;
-  gap: 16px;
-  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  gap: 4px;
+  padding: 4px 16px;
+  margin-top: 8px;
+}
+
+/* Cap the halo SVG container so it never overflows */
+.severity-sheet-halo-area .severity-halo-container {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+/* ── Footer: slider + buttons — tightly packed ── */
+.severity-sheet-footer {
+  padding: 0 16px calc(16px + var(--ion-safe-area-bottom, 0px));
+}
+
+.severity-sheet-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .symptom-remove-btn {
   flex: 0 0 auto;
   --border-radius: 12px;
-  height: 56px;
+  height: 52px;
   font-weight: 700;
   margin: 0;
 }
 
 .symptom-save-btn {
   flex: 1;
-  --border-radius: 20px;
-  height: 56px;
-  --background: #2D3032; /* Dark slate pill button */
+  --border-radius: 16px;
+  height: 52px;
+  --background: #2D3032;
   font-weight: 700;
   margin: 0;
 }

@@ -1,149 +1,293 @@
 /**
  * MicroDoc — Report Summary Generator
  *
- * Parses SymptomEntry data and produces a plain-text chronological summary
- * designed for a physician during a time-constrained appointment.
+ * Parses SymptomEntry data and produces both structured data objects and
+ * a professional plain-text report designed for sharing with a physician.
  */
 
-import { subDays, subWeeks, subMonths, isAfter } from 'date-fns';
+import { subDays, subWeeks, subMonths, isAfter, format } from 'date-fns';
 import type { SymptomEntry, ReportRange } from '../types';
 
-/**
- * Returns the cutoff Date for a given report range.
- * For 'all', returns the epoch (all entries pass).
- */
+/* ── Helpers ──────────────────────────────────────────────── */
+
 function getCutoffDate(range: ReportRange): Date {
   const now = new Date();
   switch (range) {
-    case '3d':
-      return subDays(now, 3);
-    case '1w':
-      return subWeeks(now, 1);
-    case '2w':
-      return subWeeks(now, 2);
-    case '1m':
-      return subMonths(now, 1);
-    case 'all':
-      return new Date(0);
+    case '3d':  return subDays(now, 3);
+    case '1w':  return subWeeks(now, 1);
+    case '2w':  return subWeeks(now, 2);
+    case '1m':  return subMonths(now, 1);
+    case 'all': return new Date(0);
   }
 }
 
-/**
- * Returns the human-readable label for the time range.
- */
 function getRangeLabel(range: ReportRange): string {
   switch (range) {
-    case '3d':
-      return 'past 3 days';
-    case '1w':
-      return 'past 1 week';
-    case '2w':
-      return 'past 2 weeks';
-    case '1m':
-      return 'past 1 month';
-    case 'all':
-      return 'all time';
+    case '3d':  return 'Past 3 Days';
+    case '1w':  return 'Past 1 Week';
+    case '2w':  return 'Past 2 Weeks';
+    case '1m':  return 'Past 1 Month';
+    case 'all': return 'All Time';
   }
+}
+
+function severityLabel(sev: number): string {
+  if (sev <= 1.5) return 'Mild';
+  if (sev <= 2.5) return 'Low';
+  if (sev <= 3.5) return 'Moderate';
+  if (sev <= 4.5) return 'High';
+  return 'Severe';
+}
+
+/* ── Data Types ───────────────────────────────────────────── */
+
+export interface SymptomStat {
+  name: string;
+  frequency: number;
+  avgSeverity: number;
+  maxSeverity: number;
+  lastOccurrence: string; // ISO timestamp
+}
+
+export interface TimelineDay {
+  date: string;         // formatted date string e.g. "Jul 9, 2026"
+  dateISO: string;      // ISO date for sorting
+  entries: {
+    symptoms: Record<string, number>;
+    note?: string;
+    time: string;       // formatted time e.g. "2:30 PM"
+  }[];
 }
 
 export interface ReportData {
   totalEntries: number;
+  totalSymptomInstances: number;
+  averageSeverity: number;
+  overallSeverityLabel: string;
   mostFrequentSymptom: string | null;
   mostFrequentCount: number;
-  averageSeverity: number;
+  highestSeveritySymptom: string | null;
+  highestSeverityValue: number;
   entriesWithNotes: number;
   rangeLabel: string;
+  dateRangeFormatted: string;  // e.g. "Jun 25 – Jul 9, 2026"
+  symptomStats: SymptomStat[];
+  timeline: TimelineDay[];
+  patientNotes: { date: string; note: string }[];
   filteredEntries: SymptomEntry[];
 }
 
-/**
- * Filters entries by the given range and computes summary statistics.
- */
+/* ── Core Generator ───────────────────────────────────────── */
+
 export function generateReportData(
   entries: SymptomEntry[],
   range: ReportRange
 ): ReportData {
   const cutoff = getCutoffDate(range);
   const rangeLabel = getRangeLabel(range);
+  const now = new Date();
 
   const filtered = entries.filter((e) =>
     isAfter(new Date(e.timestamp), cutoff)
   );
 
+  // Date range label
+  const dateRangeFormatted = filtered.length > 0
+    ? `${format(new Date(filtered[filtered.length - 1].timestamp), 'MMM d')} – ${format(now, 'MMM d, yyyy')}`
+    : `${format(cutoff, 'MMM d')} – ${format(now, 'MMM d, yyyy')}`;
+
   if (filtered.length === 0) {
     return {
       totalEntries: 0,
+      totalSymptomInstances: 0,
+      averageSeverity: 0,
+      overallSeverityLabel: 'N/A',
       mostFrequentSymptom: null,
       mostFrequentCount: 0,
-      averageSeverity: 0,
+      highestSeveritySymptom: null,
+      highestSeverityValue: 0,
       entriesWithNotes: 0,
       rangeLabel,
+      dateRangeFormatted,
+      symptomStats: [],
+      timeline: [],
+      patientNotes: [],
       filteredEntries: [],
     };
   }
 
-  // Count symptom frequency
-  const symptomCounts: Record<string, number> = {};
-  for (const entry of filtered) {
-    for (const symptom of Object.keys(entry.symptoms)) {
-      symptomCounts[symptom] = (symptomCounts[symptom] || 0) + 1;
-    }
-  }
+  // ── Per-symptom statistics ──
+  const symptomMap: Record<string, {
+    count: number;
+    totalSev: number;
+    maxSev: number;
+    lastOccurrence: string;
+  }> = {};
 
-  // Find most frequent
-  let mostFrequentSymptom: string | null = null;
-  let mostFrequentCount = 0;
-  for (const [symptom, count] of Object.entries(symptomCounts)) {
-    if (count > mostFrequentCount) {
-      mostFrequentSymptom = symptom;
-      mostFrequentCount = count;
-    }
-  }
-
-  // Average severity
   let totalSeverity = 0;
-  let severityCount = 0;
-  filtered.forEach(e => {
-    Object.values(e.symptoms).forEach(sev => {
-      totalSeverity += sev;
-      severityCount++;
-    });
-  });
-  const averageSeverity = severityCount === 0 ? 0 : Math.round((totalSeverity / severityCount) * 10) / 10;
+  let totalSymptomInstances = 0;
 
-  // Count notes
-  const entriesWithNotes = filtered.filter(
-    (e) => e.note && e.note.trim().length > 0
-  ).length;
+  for (const entry of filtered) {
+    for (const [symptom, sev] of Object.entries(entry.symptoms)) {
+      totalSeverity += sev;
+      totalSymptomInstances++;
+
+      if (!symptomMap[symptom]) {
+        symptomMap[symptom] = {
+          count: 0,
+          totalSev: 0,
+          maxSev: 0,
+          lastOccurrence: entry.timestamp,
+        };
+      }
+      const s = symptomMap[symptom];
+      s.count++;
+      s.totalSev += sev;
+      if (sev > s.maxSev) s.maxSev = sev;
+      // Since entries are sorted newest-first, the first occurrence IS the latest
+      if (new Date(entry.timestamp) > new Date(s.lastOccurrence)) {
+        s.lastOccurrence = entry.timestamp;
+      }
+    }
+  }
+
+  const symptomStats: SymptomStat[] = Object.entries(symptomMap)
+    .map(([name, data]) => ({
+      name,
+      frequency: data.count,
+      avgSeverity: Math.round((data.totalSev / data.count) * 10) / 10,
+      maxSeverity: data.maxSev,
+      lastOccurrence: data.lastOccurrence,
+    }))
+    .sort((a, b) => b.frequency - a.frequency);
+
+  const averageSeverity = totalSymptomInstances === 0
+    ? 0
+    : Math.round((totalSeverity / totalSymptomInstances) * 10) / 10;
+
+  // Most frequent & highest severity
+  const mostFrequent = symptomStats[0] || null;
+  let highestSev = symptomStats[0] || null;
+  for (const s of symptomStats) {
+    if (s.maxSeverity > (highestSev?.maxSeverity || 0)) {
+      highestSev = s;
+    }
+  }
+
+  // ── Timeline (grouped by date) ──
+  const dayMap: Record<string, TimelineDay> = {};
+
+  for (const entry of filtered) {
+    const d = new Date(entry.timestamp);
+    const dateKey = format(d, 'yyyy-MM-dd');
+    const dateLabel = format(d, 'MMM d, yyyy');
+    const timeLabel = format(d, 'h:mm a');
+
+    if (!dayMap[dateKey]) {
+      dayMap[dateKey] = { date: dateLabel, dateISO: dateKey, entries: [] };
+    }
+    dayMap[dateKey].entries.push({
+      symptoms: entry.symptoms,
+      note: entry.note,
+      time: timeLabel,
+    });
+  }
+
+  const timeline = Object.values(dayMap)
+    .sort((a, b) => b.dateISO.localeCompare(a.dateISO)); // newest first
+
+  // ── Patient notes ──
+  const patientNotes = filtered
+    .filter((e) => e.note && e.note.trim().length > 0)
+    .map((e) => ({
+      date: format(new Date(e.timestamp), 'MMM d'),
+      note: e.note!.trim(),
+    }));
+
+  const entriesWithNotes = patientNotes.length;
 
   return {
     totalEntries: filtered.length,
-    mostFrequentSymptom,
-    mostFrequentCount,
+    totalSymptomInstances,
     averageSeverity,
+    overallSeverityLabel: severityLabel(averageSeverity),
+    mostFrequentSymptom: mostFrequent?.name || null,
+    mostFrequentCount: mostFrequent?.frequency || 0,
+    highestSeveritySymptom: highestSev?.name || null,
+    highestSeverityValue: highestSev?.maxSeverity || 0,
     entriesWithNotes,
     rangeLabel,
+    dateRangeFormatted,
+    symptomStats,
+    timeline,
+    patientNotes,
     filteredEntries: filtered,
   };
 }
 
-/**
- * Generates the exact plain-text summary string for the doctor.
- */
+/* ── Plain-Text Report (for Copy / Share) ────────────────── */
+
 export function generateReportText(data: ReportData): string {
+  const line = '──────────────────────────────';
+
   if (data.totalEntries === 0) {
-    return `Summary for ${data.rangeLabel}: No symptoms were logged during this period.`;
+    return (
+      `${line}\n` +
+      `MICRODOC SYMPTOM REPORT\n` +
+      `Period: ${data.dateRangeFormatted} (${data.rangeLabel})\n` +
+      `${line}\n\n` +
+      `No symptoms were logged during this period.\n\n` +
+      `${line}\n` +
+      `This report is auto-generated from self-reported data\n` +
+      `and is not a medical diagnosis. Please consult a\n` +
+      `qualified healthcare professional for medical advice.\n` +
+      `${line}`
+    );
   }
 
-  const symptomPart = data.mostFrequentSymptom
-    ? ` Most frequent symptom: ${data.mostFrequentSymptom} (${data.mostFrequentCount} time${data.mostFrequentCount !== 1 ? 's' : ''}).`
-    : '';
+  // Header
+  let text = '';
+  text += `${line}\n`;
+  text += `MICRODOC SYMPTOM REPORT\n`;
+  text += `Period: ${data.dateRangeFormatted} (${data.rangeLabel})\n`;
+  text += `Total Entries: ${data.totalEntries}\n`;
+  text += `Overall Avg Severity: ${data.averageSeverity}/5 (${data.overallSeverityLabel})\n`;
+  text += `${line}\n\n`;
 
-  return (
-    `Summary for ${data.rangeLabel}: ` +
-    `Patient logged symptoms ${data.totalEntries} time${data.totalEntries !== 1 ? 's' : ''}.` +
-    symptomPart +
-    ` Average reported severity: ${data.averageSeverity}/5.` +
-    ` Notes provided on ${data.entriesWithNotes} entr${data.entriesWithNotes !== 1 ? 'ies' : 'y'}.`
-  );
+  // Symptom Breakdown
+  text += `SYMPTOM BREAKDOWN\n`;
+  for (const s of data.symptomStats) {
+    text += `  • ${s.name} — ${s.frequency}× reported, avg ${s.avgSeverity}/5, peak ${s.maxSeverity}/5\n`;
+  }
+  text += '\n';
+
+  // Timeline
+  text += `TIMELINE\n`;
+  for (const day of data.timeline) {
+    for (const entry of day.entries) {
+      const symptoms = Object.entries(entry.symptoms)
+        .map(([name, sev]) => `${name} (${sev}/5)`)
+        .join(', ');
+      text += `  ${day.date} ${entry.time} — ${symptoms}\n`;
+    }
+  }
+  text += '\n';
+
+  // Patient Notes
+  if (data.patientNotes.length > 0) {
+    text += `PATIENT NOTES\n`;
+    for (const n of data.patientNotes) {
+      text += `  ${n.date}: "${n.note}"\n`;
+    }
+    text += '\n';
+  }
+
+  // Disclaimer
+  text += `${line}\n`;
+  text += `This report is auto-generated from self-reported data\n`;
+  text += `and is not a medical diagnosis. Please consult a\n`;
+  text += `qualified healthcare professional for medical advice.\n`;
+  text += `${line}`;
+
+  return text;
 }

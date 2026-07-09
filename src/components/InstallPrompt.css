@@ -1,0 +1,192 @@
+/* ═══════════════════════════════════════════
+ * PWA Install Prompt — Floating glassmorphic card
+ * ═══════════════════════════════════════════ */
+
+/* ── Backdrop overlay ── */
+.install-prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 46, 35, 0.25);
+  z-index: 99998;
+  animation: installBackdropIn 0.4s ease forwards;
+}
+
+@keyframes installBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Floating card ── */
+.install-prompt-card {
+  position: fixed;
+  bottom: calc(24px + var(--ion-safe-area-bottom, 0px));
+  left: 16px;
+  right: 16px;
+  z-index: 99999;
+  background: rgba(246, 245, 239, 0.92);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 16px 48px rgba(26, 46, 35, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  padding: 24px 22px 20px;
+  animation: installSlideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes installSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Dismiss animation ── */
+.install-prompt-card.dismissing {
+  animation: installSlideDown 0.35s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.install-prompt-backdrop.dismissing {
+  animation: installBackdropOut 0.35s ease forwards;
+}
+
+@keyframes installSlideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+  }
+}
+
+@keyframes installBackdropOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ── Title row ── */
+.install-prompt-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #1A2E23;
+  letter-spacing: -0.3px;
+  margin-bottom: 14px;
+}
+
+/* ── Benefit list ── */
+.install-prompt-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.install-prompt-benefits li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #3A5244;
+  line-height: 1.35;
+}
+
+.install-prompt-benefits li .benefit-dot {
+  width: 6px;
+  height: 6px;
+  min-width: 6px;
+  border-radius: 50%;
+  background: #2B8760;
+  flex-shrink: 0;
+}
+
+/* ── iOS instructions (hidden by default) ── */
+.install-ios-instructions {
+  background: rgba(43, 135, 96, 0.06);
+  border: 1px solid rgba(43, 135, 96, 0.12);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  animation: iosInstructionsFade 0.3s ease forwards;
+}
+
+@keyframes iosInstructionsFade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.install-ios-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #3A5244;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.install-ios-step + .install-ios-step {
+  margin-top: 8px;
+}
+
+.install-ios-step ion-icon {
+  font-size: 18px;
+  color: #2B8760;
+  flex-shrink: 0;
+}
+
+.install-ios-step .step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  background: #2B8760;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Action buttons ── */
+.install-prompt-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.install-prompt-dismiss {
+  flex: 0 0 auto;
+  --color: rgba(26, 46, 35, 0.5);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14.5px;
+  margin: 0;
+}
+
+.install-prompt-cta {
+  flex: 1;
+  --border-radius: 14px;
+  height: 48px;
+  margin: 0;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+  --background: #2B8760;
+  --box-shadow: 0 6px 20px rgba(43, 135, 96, 0.3);
+}

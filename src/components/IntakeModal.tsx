@@ -2,10 +2,10 @@
  * IntakeModal — Symptom Logging Intake Form
  *
  * Jade Horizon glassmorphism aesthetic with frosted glass symptom cards,
- * per-symptom translucent color tints, 3D morphing blob, and curved arc slider.
+ * per-symptom translucent color tints, Mindfulness Halo, and curved arc slider.
  */
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   IonModal,
   IonHeader,
@@ -27,7 +27,7 @@ interface IntakeModalProps {
   onSave: (symptoms: Record<string, number>, note?: string) => void;
 }
 
-/* ── Severity color + label config ── */
+/* ── Severity label config ── */
 
 const SEVERITY_FEELINGS: Record<number, string> = {
   1: 'Comfortable',
@@ -37,34 +37,85 @@ const SEVERITY_FEELINGS: Record<number, string> = {
   5: 'Agitated',
 };
 
-function interpolateColor(color1: string, color2: string, factor: number) {
-  const result = color1.slice(1).match(/.{2}/g)!.map((hex, i) =>
-    Math.round(parseInt(hex, 16) + factor * (parseInt(color2.slice(1).match(/.{2}/g)![i], 16) - parseInt(hex, 16)))
-  );
-  return `#${result.map(x => x.toString(16).padStart(2, '0')).join('')}`;
+/* ══════════════════════════════════════════════════════════════
+ * CONTINUOUS RGB LINEAR INTERPOLATION
+ * Replaces the old step-bracket functions for perfectly smooth
+ * color transitions without any abrupt jumps.
+ * ══════════════════════════════════════════════════════════════ */
+
+interface RGB {
+  r: number;
+  g: number;
+  b: number;
 }
 
-function getDynamicSeverityColor(value: number): string {
-  if (value <= 1) return '#4ADE80';
-  if (value >= 5) return '#E11D48';
-  if (value <= 3) return interpolateColor('#4ADE80', '#F59E0B', (value - 1) / 2);
-  return interpolateColor('#F59E0B', '#E11D48', (value - 3) / 2);
+/** Parse a hex color string to an RGB object */
+function hexToRgb(hex: string): RGB {
+  const h = hex.replace('#', '');
+  return {
+    r: parseInt(h.substring(0, 2), 16),
+    g: parseInt(h.substring(2, 4), 16),
+    b: parseInt(h.substring(4, 6), 16),
+  };
 }
 
-function getBlobGradient(value: number): string {
-  if (value <= 1.5) return 'radial-gradient(circle at 35% 35%, #6EE7A0, #22C55E 50%, #15803D)';
-  if (value <= 2.5) return 'radial-gradient(circle at 35% 35%, #FDE68A, #FBBF24 50%, #D97706)';
-  if (value <= 3.5) return 'radial-gradient(circle at 35% 35%, #FDBA74, #F97316 50%, #EA580C)';
-  if (value <= 4.5) return 'radial-gradient(circle at 35% 35%, #FCA5A5, #EF4444 50%, #DC2626)';
-  return 'radial-gradient(circle at 35% 35%, #FDA4AF, #E11D48 50%, #BE123C)';
+/** Linearly interpolate between two RGB colors */
+function lerpRgb(c1: RGB, c2: RGB, factor: number): RGB {
+  return {
+    r: Math.round(c1.r + (c2.r - c1.r) * factor),
+    g: Math.round(c1.g + (c2.g - c1.g) * factor),
+    b: Math.round(c1.b + (c2.b - c1.b) * factor),
+  };
 }
 
-function getBlobGlow(value: number): string {
-  if (value <= 1.5) return 'rgba(74, 222, 128, 0.4)';
-  if (value <= 2.5) return 'rgba(251, 191, 36, 0.4)';
-  if (value <= 3.5) return 'rgba(249, 115, 22, 0.4)';
-  if (value <= 4.5) return 'rgba(239, 68, 68, 0.4)';
-  return 'rgba(225, 29, 72, 0.4)';
+function rgbToString(c: RGB): string {
+  return `rgb(${c.r}, ${c.g}, ${c.b})`;
+}
+
+function rgbaToString(c: RGB, alpha: number): string {
+  return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+}
+
+/** The 5 severity color stops */
+const COLOR_STOPS: RGB[] = [
+  hexToRgb('#4ADE80'), // 1.0 — Sage Green
+  hexToRgb('#FBBF24'), // 2.0 — Soft Yellow
+  hexToRgb('#F97316'), // 3.0 — Ochre Amber
+  hexToRgb('#EF4444'), // 4.0 — Terracotta Red
+  hexToRgb('#E11D48'), // 5.0 — Deep Crimson
+];
+
+/**
+ * Get a continuously interpolated color for any severity value 1.0–5.0.
+ * At severity 2.3, returns 30% blend between stop[1] (yellow) and stop[2] (amber).
+ */
+function getSmoothColor(value: number): RGB {
+  const clamped = Math.max(1, Math.min(5, value));
+  if (clamped <= 1) return COLOR_STOPS[0];
+  if (clamped >= 5) return COLOR_STOPS[4];
+  const segment = clamped - 1; // 0..4
+  const index = Math.floor(segment); // 0..3
+  const factor = segment - index;   // 0..1 within segment
+  return lerpRgb(COLOR_STOPS[index], COLOR_STOPS[Math.min(index + 1, 4)], factor);
+}
+
+/**
+ * Compute the three offset halo colors for the layered aurora effect.
+ * - primary: exact slider value
+ * - left: cooler undertone (offset -0.7)
+ * - right: warmer highlight (offset +0.7)
+ */
+function getHaloColors(value: number) {
+  const primary = getSmoothColor(value);
+  const left = getSmoothColor(value - 0.7);
+  const right = getSmoothColor(value + 0.7);
+  const glow = getSmoothColor(value);
+  return { primary, left, right, glow };
+}
+
+/** Get the slider track and dot color as a CSS string */
+function getSeverityColorString(value: number): string {
+  return rgbToString(getSmoothColor(value));
 }
 
 /* ── Bezier arc math for the curved slider ── */
@@ -95,7 +146,52 @@ function tToSeverity(t: number): number {
   return 1 + t * 4;
 }
 
-const DOT_COLORS = ['#4ADE80', '#FBBF24', '#F97316', '#EF4444', '#E11D48'];
+/** 
+ * Generates an SVG path for a hollow, wavy torus ring.
+ * Draws an outer wavy circle (clockwise) and inner wavy circle (counter-clockwise) 
+ * so that when combined, they cut a hole in the center.
+ */
+function createWavyRingPath(
+  cx: number, cy: number, 
+  rOut: number, rIn: number, 
+  waveCount: number, waveDepthOut: number, waveDepthIn: number, 
+  phase: number = 0
+): string {
+  const pointsOut: {x: number, y: number}[] = [];
+  const pointsIn: {x: number, y: number}[] = [];
+  const steps = 16; 
+  
+  for (let i = 0; i < steps; i++) {
+    const angle = (i / steps) * Math.PI * 2;
+    const rO = rOut + Math.sin(angle * waveCount + phase) * waveDepthOut;
+    pointsOut.push({ x: cx + Math.cos(angle) * rO, y: cy + Math.sin(angle) * rO });
+
+    const rI = rIn + Math.sin(angle * waveCount - phase + Math.PI) * waveDepthIn;
+    pointsIn.push({ x: cx + Math.cos(angle) * rI, y: cy + Math.sin(angle) * rI });
+  }
+
+  const buildBezierPath = (pts: {x: number, y: number}[], clockwise: boolean) => {
+    const arr = clockwise ? [...pts] : [...pts].reverse();
+    let d = `M ${arr[0].x.toFixed(1)} ${arr[0].y.toFixed(1)}`;
+    const len = arr.length;
+    for (let i = 0; i < len; i++) {
+      const p0 = arr[i];
+      const p1 = arr[(i + 1) % len];
+      const p2 = arr[(i + 2) % len];
+      
+      const cp1x = p0.x + (p1.x - arr[(i - 1 + len) % len].x) / 6;
+      const cp1y = p0.y + (p1.y - arr[(i - 1 + len) % len].y) / 6;
+      const cp2x = p1.x - (p2.x - p0.x) / 6;
+      const cp2y = p1.y - (p2.y - p0.y) / 6;
+      
+      d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
+    }
+    d += ' Z';
+    return d;
+  };
+
+  return `${buildBezierPath(pointsOut, true)} ${buildBezierPath(pointsIn, false)}`;
+}
 
 const IntakeModal: React.FC<IntakeModalProps> = ({
   isOpen,
@@ -106,10 +202,14 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
   const [note, setNote] = useState<string>('');
   const [error, setError] = useState<string>('');
   
-  // Full-screen Modal State
+  // Bottom Sheet State
   const [activeSymptomModal, setActiveSymptomModal] = useState<string | null>(null);
   const [activeSeverity, setActiveSeverity] = useState<number>(1.0);
-  const [modalVisible, setModalVisible] = useState(false); // for CSS transition
+
+  // Generate the 3 wavy halo layers (thicker and slightly larger)
+  const pathLayer1 = useMemo(() => createWavyRingPath(100, 100, 84, 28, 4, 10, 6, 0), []);
+  const pathLayer2 = useMemo(() => createWavyRingPath(100, 100, 88, 32, 3, 12, 8, Math.PI / 4), []);
+  const pathLayer3 = useMemo(() => createWavyRingPath(100, 100, 80, 26, 5, 8, 5, Math.PI / 2), []);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const isDragging = useRef(false);
@@ -119,7 +219,6 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
     setNote('');
     setError('');
     setActiveSymptomModal(null);
-    setModalVisible(false);
   };
 
   const handleDismiss = () => {
@@ -130,8 +229,6 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
   const openSymptomModal = (symptom: string) => {
     setActiveSymptomModal(symptom);
     setActiveSeverity(selectedSymptoms[symptom] || 1.0);
-    // slight delay to allow display:block before opacity:1 for transition
-    setTimeout(() => setModalVisible(true), 10);
   };
 
   const closeSymptomModal = () => {
@@ -142,8 +239,7 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
         [activeSymptomModal]: Math.round(activeSeverity * 2) / 2
       }));
     }
-    setModalVisible(false);
-    setTimeout(() => setActiveSymptomModal(null), 400); // wait for CSS transition
+    setActiveSymptomModal(null);
   };
 
   const removeSymptom = (symptom: string) => {
@@ -152,9 +248,10 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
       delete copy[symptom];
       return copy;
     });
-    setModalVisible(false);
-    setTimeout(() => setActiveSymptomModal(null), 400);
+    setActiveSymptomModal(null);
   };
+
+
 
   const handleSave = () => {
     if (Object.keys(selectedSymptoms).length === 0) {
@@ -211,10 +308,11 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
 
   /* ── Computed visuals for Modal ── */
   const snappedSeverity = Math.round(activeSeverity * 2) / 2;
-  const severityColor = getDynamicSeverityColor(activeSeverity);
-  const blobGradient = getBlobGradient(activeSeverity);
-  const blobGlow = getBlobGlow(activeSeverity);
+  const severityColor = getSeverityColorString(activeSeverity);
   const feelingLabel = SEVERITY_FEELINGS[Math.round(snappedSeverity)] ?? 'Unknown';
+
+  // Continuous halo colors
+  const haloColors = getHaloColors(activeSeverity);
 
   const handleT = severityToT(activeSeverity);
   const handlePos = getArcPoint(handleT);
@@ -230,7 +328,19 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
     return pts.join(' ');
   })();
 
+  // Dot colors — continuously interpolated per dot position
+  const dotColors = [1, 2, 3, 4, 5].map(v => getSeverityColorString(v));
+
   const activeConfig = SYMPTOM_CONFIG.find(c => c.label === activeSymptomModal);
+
+  // CSS variable injection for the halo
+  const haloStyleVars = {
+    '--halo-color-primary': rgbToString(haloColors.primary),
+    '--halo-color-left': rgbToString(haloColors.left),
+    '--halo-color-right': rgbToString(haloColors.right),
+    '--halo-glow': rgbaToString(haloColors.glow, 0.3),
+    marginBottom: '40px',
+  } as React.CSSProperties;
 
   return (
     <IonModal
@@ -353,94 +463,111 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
         </div>
       </IonFooter>
 
-      {/* ── Full Screen Morphing Symptom Modal ── */}
-      {activeSymptomModal && (
-        <div 
-          className={`symptom-fullscreen-overlay ${modalVisible ? 'symptom-fullscreen-overlay--visible' : ''}`}
-        >
-          {/* Backdrop (clicking it closes and saves) */}
-          <div className="symptom-fullscreen-backdrop" onClick={closeSymptomModal} />
-          
-          {/* Modal Content */}
-          <div className="symptom-fullscreen-content">
-            <div className="symptom-fullscreen-header">
-              <div className="symptom-fullscreen-title">
-                {activeConfig && <IonIcon icon={activeConfig.icon} style={{ color: activeConfig.color }} />}
-                {activeSymptomModal}
-              </div>
-              <IonButton fill="clear" color="dark" onClick={closeSymptomModal}>
-                <IonIcon icon={closeOutline} />
-              </IonButton>
+      {/* ── Bottom Sheet Mindfulness Halo Modal ── */}
+      <IonModal
+        isOpen={!!activeSymptomModal}
+        onDidDismiss={closeSymptomModal}
+        breakpoints={[0, 0.65, 0.9]}
+        initialBreakpoint={0.65}
+        handle={false}
+        className="severity-bottom-sheet"
+      >
+        <div className="severity-sheet-content" style={haloStyleVars as React.CSSProperties}>
+          {/* Drag Handle */}
+          <div className="severity-sheet-handle" />
+
+          {/* ── Header: Symptom name + close ── */}
+          <div className="severity-sheet-header">
+            <div className="severity-sheet-title">
+              {activeConfig && <IonIcon icon={activeConfig.icon} style={{ color: activeConfig.color, fontSize: '22px' }} />}
+              <span>{activeSymptomModal}</span>
             </div>
+            <IonButton fill="clear" className="severity-sheet-close" onClick={closeSymptomModal}>
+              <IonIcon icon={closeOutline} />
+            </IonButton>
+          </div>
 
-            <span className="intake-modal__label" style={{ alignSelf: 'center', marginBottom: '24px' }}>How severe is it?</span>
+          {/* ── Middle: Halo + status text ── */}
+          <div className="severity-sheet-halo-area">
+            <div className="severity-ambient-glow" />
+            <div className="severity-halo-container">
+              <svg
+                className="severity-halo-svg"
+                viewBox="0 0 200 200"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ fillRule: 'evenodd' }}
+              >
+                <defs>
+                  <radialGradient id="haloCool" cx="35%" cy="35%" r="65%">
+                    <stop offset="0%" stopColor={rgbaToString(haloColors.left, 0.75)} />
+                    <stop offset="60%" stopColor={rgbaToString(haloColors.left, 0.3)} />
+                    <stop offset="100%" stopColor="transparent" />
+                  </radialGradient>
+                  <radialGradient id="haloWarm" cx="65%" cy="65%" r="65%">
+                    <stop offset="0%" stopColor={rgbaToString(haloColors.right, 0.75)} />
+                    <stop offset="60%" stopColor={rgbaToString(haloColors.right, 0.3)} />
+                    <stop offset="100%" stopColor="transparent" />
+                  </radialGradient>
+                  <radialGradient id="haloPrimary" cx="50%" cy="40%" r="65%">
+                    <stop offset="0%" stopColor={rgbaToString(haloColors.primary, 0.8)} />
+                    <stop offset="50%" stopColor={rgbaToString(haloColors.primary, 0.35)} />
+                    <stop offset="100%" stopColor="transparent" />
+                  </radialGradient>
+                </defs>
+                <path d={pathLayer1} fill="url(#haloCool)" className="halo-layer halo-layer--1" />
+                <path d={pathLayer2} fill="url(#haloWarm)" className="halo-layer halo-layer--2" />
+                <path d={pathLayer3} fill="url(#haloPrimary)" className="halo-layer halo-layer--3" />
+              </svg>
+            </div>
+            <div className="severity-status-text">
+              <span className="severity-status-text__feeling">I'm feeling</span>
+              <span className="severity-status-text__label">{feelingLabel}</span>
+              <span className="severity-status-text__score">{snappedSeverity.toFixed(1)} / 5</span>
+            </div>
+          </div>
 
+          {/* ── Bottom: Curved Slider + Actions ── */}
+          <div className="severity-sheet-footer">
             <div
-              className="intake-modal__severity-container"
-              style={{
-                '--blob-gradient': blobGradient,
-                '--blob-glow': blobGlow,
-                marginBottom: '40px',
-              } as React.CSSProperties}
+              className="curved-slider"
+              onMouseDown={handlePointerDown}
+              onTouchStart={handlePointerDown}
             >
-              <div className="severity-ambient-glow" />
-
-              <div className="severity-blob-wrapper">
-                <div className="severity-blob-container">
-                  <div className="severity-blob" />
-                </div>
-
-                <div className="severity-status-text">
-                  <span className="severity-status-text__feeling">I'm feeling</span>
-                  <span className="severity-status-text__label">{feelingLabel}</span>
-                  <span className="severity-status-text__score">{snappedSeverity.toFixed(1)} / 5</span>
-                </div>
-
-                <div
-                  className="curved-slider"
-                  onMouseDown={handlePointerDown}
-                  onTouchStart={handlePointerDown}
-                >
-                  <svg
-                    ref={svgRef}
-                    className="curved-slider__svg"
-                    viewBox={`0 0 ${ARC_W} ${ARC_H}`}
-                    preserveAspectRatio="xMidYMid meet"
-                  >
-                    <path d={arcPath} className="curved-slider__track" />
-                    <path d={activeArcPath} className="curved-slider__track-active" style={{ stroke: severityColor }} />
-
-                    {[1, 2, 3, 4, 5].map((v, i) => {
-                      const t = severityToT(v);
-                      const p = getArcPoint(t);
-                      const isActive = snappedSeverity >= v;
-                      return (
-                        <circle
-                          key={v}
-                          cx={p.x}
-                          cy={p.y}
-                          r={isActive ? 4.5 : 3.5}
-                          className="curved-slider__dot"
-                          fill={isActive ? DOT_COLORS[i] : 'rgba(26, 46, 35, 0.15)'}
-                        />
-                      );
-                    })}
-
-                    <circle cx={handlePos.x} cy={handlePos.y} r={14} fill="#FFFFFF" className="curved-slider__handle" />
-                    <circle cx={handlePos.x} cy={handlePos.y} r={17} className="curved-slider__handle-ring" />
-                  </svg>
-
-                  <div className="curved-slider__labels">
-                    <span>Mild</span>
-                    <span>Moderate</span>
-                    <span>Severe</span>
-                  </div>
-                </div>
+              <svg
+                ref={svgRef}
+                className="curved-slider__svg"
+                viewBox={`0 0 ${ARC_W} ${ARC_H}`}
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <path d={arcPath} className="curved-slider__track" />
+                <path d={activeArcPath} className="curved-slider__track-active" style={{ stroke: severityColor }} />
+                {[1, 2, 3, 4, 5].map((v, i) => {
+                  const t = severityToT(v);
+                  const p = getArcPoint(t);
+                  const isActive = snappedSeverity >= v;
+                  return (
+                    <circle
+                      key={v}
+                      cx={p.x}
+                      cy={p.y}
+                      r={isActive ? 4.5 : 3.5}
+                      className="curved-slider__dot"
+                      fill={isActive ? dotColors[i] : 'rgba(26, 46, 35, 0.15)'}
+                    />
+                  );
+                })}
+                <circle cx={handlePos.x} cy={handlePos.y} r={14} fill="#FFFFFF" className="curved-slider__handle" />
+                <circle cx={handlePos.x} cy={handlePos.y} r={17} className="curved-slider__handle-ring" />
+              </svg>
+              <div className="curved-slider__labels">
+                <span>Mild</span>
+                <span>Moderate</span>
+                <span>Severe</span>
               </div>
             </div>
 
-            <div className="symptom-fullscreen-actions">
-              <IonButton fill="outline" color="danger" className="symptom-remove-btn" onClick={() => removeSymptom(activeSymptomModal)}>
+            <div className="severity-sheet-actions">
+              <IonButton fill="outline" color="danger" className="symptom-remove-btn" onClick={() => removeSymptom(activeSymptomModal!)}>
                 Remove
               </IonButton>
               <IonButton fill="solid" className="symptom-save-btn" onClick={closeSymptomModal}>
@@ -449,7 +576,7 @@ const IntakeModal: React.FC<IntakeModalProps> = ({
             </div>
           </div>
         </div>
-      )}
+      </IonModal>
     </IonModal>
   );
 };

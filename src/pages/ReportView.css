@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
- * ReportView.css — Jade Horizon Glassmorphism Doctor Report
- * Frosted glass panels, warm bone tones, premium actions.
+ * ReportView.css — Professional Medical Report Styles
+ * Structured card layout, severity bars, timeline, disclaimer.
  * ═══════════════════════════════════════════════════════════════ */
 
 .report__content {
@@ -57,35 +57,283 @@
 }
 
 /* ═══════════════════════════════════════════
- * SUMMARY CARD — Frosted Glass Panel
+ * EMPTY STATE
  * ═══════════════════════════════════════════ */
-.report__summary-card {
-  background: rgba(255, 255, 255, 0.25) !important;
-  backdrop-filter: blur(30px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(140%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  border-radius: 24px;
-  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.06);
-  padding: 24px;
-  margin-bottom: 24px;
+.report__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  margin: 24px 0;
 }
 
-.report__summary-label {
+.report__empty-icon {
+  font-size: 56px;
+  color: rgba(43, 135, 96, 0.2);
+  margin-bottom: 16px;
+}
+
+.report__empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A2E23;
+  margin: 0 0 8px 0;
+}
+
+.report__empty-desc {
+  font-size: 14px;
+  color: #4B6358;
+  line-height: 1.5;
+  max-width: 280px;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════
+ * CARD — Shared Glass Panel
+ * ═══════════════════════════════════════════ */
+.report__card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(30px) saturate(140%);
+  -webkit-backdrop-filter: blur(30px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.report__card-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   font-weight: 700;
   color: #5CA87C;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  margin-bottom: 12px;
-  display: block;
+  margin-bottom: 14px;
 }
 
-.report__summary-text {
+.report__card-label-icon {
+  font-size: 14px;
+}
+
+/* ═══════════════════════════════════════════
+ * HEADER CARD — Report Overview Stats
+ * ═══════════════════════════════════════════ */
+.report__header-card {
+  padding-bottom: 18px;
+}
+
+.report__header-period {
   font-size: 15px;
+  font-weight: 600;
   color: #1A2E23;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  font-weight: 400;
+  margin-bottom: 16px;
+  letter-spacing: -0.2px;
+}
+
+.report__header-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+}
+
+.report__stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.report__stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1A2E23;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.report__stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6B8F7E;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.report__stat-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(43, 135, 96, 0.15);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+ * SYMPTOM BREAKDOWN — Bars & Stats
+ * ═══════════════════════════════════════════ */
+.report__symptom-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.report__symptom-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.report__symptom-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.report__symptom-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #1A2E23;
+}
+
+.report__symptom-freq {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B8F7E;
+}
+
+.report__severity-bar-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(26, 46, 35, 0.06);
+  overflow: hidden;
+}
+
+.report__severity-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+              background 0.6s ease;
+}
+
+.report__symptom-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #6B8F7E;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════
+ * TIMELINE — Chronological Entries
+ * ═══════════════════════════════════════════ */
+.report__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.report__timeline-day {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.report__timeline-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1A2E23;
+  letter-spacing: -0.2px;
+}
+
+.report__timeline-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(43, 135, 96, 0.12);
+}
+
+.report__timeline-time {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6B8F7E;
+  white-space: nowrap;
+  min-width: 60px;
+  padding-top: 2px;
+}
+
+.report__timeline-symptoms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.report__timeline-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1A2E23;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1.5px solid;
+  border-radius: 20px;
+  padding: 3px 10px;
+  line-height: 1.3;
+}
+
+.report__timeline-sev {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* ═══════════════════════════════════════════
+ * PATIENT NOTES
+ * ═══════════════════════════════════════════ */
+.report__notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report__note-item {
+  padding-left: 12px;
+  border-left: 2px solid rgba(43, 135, 96, 0.12);
+}
+
+.report__note-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B8F7E;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.report__note-text {
+  font-size: 14px;
+  color: #3A5244;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════
+ * DISCLAIMER FOOTER
+ * ═══════════════════════════════════════════ */
+.report__disclaimer {
+  font-size: 11.5px;
+  color: #8A9B92;
+  text-align: center;
+  line-height: 1.5;
+  padding: 16px 20px;
+  margin: 8px 0 20px;
+  border-top: 1px solid rgba(43, 135, 96, 0.08);
+  border-bottom: 1px solid rgba(43, 135, 96, 0.08);
 }
 
 /* ═══════════════════════════════════════════
