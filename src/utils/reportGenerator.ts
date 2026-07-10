@@ -5,7 +5,7 @@
  * a professional plain-text report designed for sharing with a physician.
  */
 
-import { subDays, subWeeks, subMonths, isAfter, format } from 'date-fns';
+import { subDays, subWeeks, subMonths, isAfter, format, parseISO } from 'date-fns';
 import type { SymptomEntry, ReportRange } from '../types';
 
 /* ── Helpers ──────────────────────────────────────────────── */
@@ -87,13 +87,16 @@ export function generateReportData(
   const rangeLabel = getRangeLabel(range);
   const now = new Date();
 
-  const filtered = entries.filter((e) =>
-    isAfter(new Date(e.timestamp), cutoff)
-  );
+  const filtered = entries.filter((e) => {
+    const d = parseISO(e.timestamp);
+    const validDate = isNaN(d.getTime()) ? new Date(e.timestamp) : d;
+    return isAfter(validDate, cutoff);
+  });
 
   // Date range label
+  const lastEntryTime = filtered.length > 0 ? (parseISO(filtered[filtered.length - 1].timestamp).getTime() || new Date(filtered[filtered.length - 1].timestamp).getTime()) : 0;
   const dateRangeFormatted = filtered.length > 0
-    ? `${format(new Date(filtered[filtered.length - 1].timestamp), 'MMM d')} – ${format(now, 'MMM d, yyyy')}`
+    ? `${format(lastEntryTime, 'MMM d')} – ${format(now, 'MMM d, yyyy')}`
     : `${format(cutoff, 'MMM d')} – ${format(now, 'MMM d, yyyy')}`;
 
   if (filtered.length === 0) {
@@ -145,7 +148,9 @@ export function generateReportData(
       s.totalSev += sev;
       if (sev > s.maxSev) s.maxSev = sev;
       // Since entries are sorted newest-first, the first occurrence IS the latest
-      if (new Date(entry.timestamp) > new Date(s.lastOccurrence)) {
+      const entryTime = parseISO(entry.timestamp).getTime() || new Date(entry.timestamp).getTime();
+      const lastOccurTime = parseISO(s.lastOccurrence).getTime() || new Date(s.lastOccurrence).getTime();
+      if (entryTime > lastOccurTime) {
         s.lastOccurrence = entry.timestamp;
       }
     }
@@ -178,7 +183,9 @@ export function generateReportData(
   const dayMap: Record<string, TimelineDay> = {};
 
   for (const entry of filtered) {
-    const d = new Date(entry.timestamp);
+    let d = parseISO(entry.timestamp);
+    if (isNaN(d.getTime())) d = new Date(entry.timestamp);
+
     const dateKey = format(d, 'yyyy-MM-dd');
     const dateLabel = format(d, 'MMM d, yyyy');
     const timeLabel = format(d, 'h:mm a');
@@ -199,10 +206,14 @@ export function generateReportData(
   // ── Patient notes ──
   const patientNotes = filtered
     .filter((e) => e.note && e.note.trim().length > 0)
-    .map((e) => ({
-      date: format(new Date(e.timestamp), 'MMM d'),
-      note: e.note!.trim(),
-    }));
+    .map((e) => {
+      let d = parseISO(e.timestamp);
+      if (isNaN(d.getTime())) d = new Date(e.timestamp);
+      return {
+        date: format(d, 'MMM d'),
+        note: e.note!.trim(),
+      };
+    });
 
   const entriesWithNotes = patientNotes.length;
 

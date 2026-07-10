@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Preferences } from '@capacitor/preferences';
+import { parseISO } from 'date-fns';
 import type { SymptomEntry } from '../types';
 
 const STORAGE_KEY = 'microdoc_symptom_entries';
@@ -49,6 +50,7 @@ async function saveEntries(entries: SymptomEntry[]): Promise<void> {
     key: STORAGE_KEY,
     value: JSON.stringify(entries),
   });
+  window.dispatchEvent(new CustomEvent('microdoc_update'));
 }
 
 /**
@@ -72,18 +74,25 @@ export function useSymptoms() {
   const [entries, setEntries] = useState<SymptomEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load entries on mount
-  useEffect(() => {
+  const refresh = useCallback(() => {
     loadEntries().then((data) => {
       // Sort descending by timestamp (newest first)
-      data.sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
+      data.sort((a, b) => {
+        const timeA = parseISO(a.timestamp).getTime() || new Date(a.timestamp).getTime();
+        const timeB = parseISO(b.timestamp).getTime() || new Date(b.timestamp).getTime();
+        return timeB - timeA;
+      });
       setEntries(data);
       setLoading(false);
     });
   }, []);
+
+  // Load entries on mount and listen for cross-tab updates
+  useEffect(() => {
+    refresh();
+    window.addEventListener('microdoc_update', refresh);
+    return () => window.removeEventListener('microdoc_update', refresh);
+  }, [refresh]);
 
   /**
    * Adds a new symptom entry, persists, and updates state.
@@ -168,10 +177,11 @@ export function useSymptoms() {
       }
 
       // Sort descending
-      updated.sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
+      updated.sort((a, b) => {
+        const timeA = parseISO(a.timestamp).getTime() || new Date(a.timestamp).getTime();
+        const timeB = parseISO(b.timestamp).getTime() || new Date(b.timestamp).getTime();
+        return timeB - timeA;
+      });
       setEntries(updated);
       await saveEntries(updated);
 
